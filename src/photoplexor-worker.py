@@ -37,8 +37,11 @@ def callback(ch, method, properties, body):
     for size in sizes:
         print " [x] Generating size %s" % (size.name)
 
-        # Try to run the policy as ImageProc method
-        im = getattr(im_proc, size.config['policy'])(size)
+        im = None
+        for policy in size.config['policy'].split(','):
+            # Try to run the policy as ImageProc method
+            im = getattr(im_proc, policy)(size, image=im)
+
         im_proc.save(size, im, id)
 
 channel.basic_consume(callback, queue=broker_conf['queue'], no_ack=True)

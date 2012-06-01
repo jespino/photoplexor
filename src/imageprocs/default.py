@@ -1,19 +1,22 @@
 import os
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageEnhance
 
 class DefaultImageProc(object):
     def __init__(self, id, image_data, config):
         self.id = id
         file(os.path.join("data", "%s" % (id)), 'w').write(image_data)
-        self.im = Image.open(os.path.join("data", "%s" % (id)))
+        self.im = Image.open(os.path.join("data", "%s" % (id))).convert('RGBA')
         self.config = config
 
     def __del__(self):
         if self.config.get('global','store_original') == 'no':
             os.unlink(os.path.join("data", "%s" % (self.id)))
 
-    def crop(self, size):
-        (width, height) = self.im.size 
+    def crop(self, size, image=None):
+        if not image:
+            image = self.im
+
+        (width, height) = image.size 
         if width >= size.width:
             if size.config['crop_align'] == 'center':
                 left = (width/2)-(size.width/2)
@@ -45,9 +48,12 @@ class DefaultImageProc(object):
         else:
             top = 0
             botton = height
-        return self.im.crop((left, top, right, botton))
+        return image.crop((left, top, right, botton))
 
-    def fit(self, size):
+    def fit(self, size, image=None):
+        if not image:
+            image = self.im
+
         align = [0.0, 0.0]
 
         if size.config['fit_align'] == 'center':
@@ -67,13 +73,29 @@ class DefaultImageProc(object):
             align[0] = 1.0
         else:
             raise Exception('Invalid fit_valign')
-        return ImageOps.fit(self.im, (size.width, size.height), Image.ANTIALIAS, 0, align)
+        return ImageOps.fit(image, (size.width, size.height), Image.ANTIALIAS, 0, align)
 
-    def scale(self, size):
-        return self.im.resize(size, Image.ANTIALIAS)
+    def scale(self, size, image=None):
+        if not image:
+            image = self.im
 
-    def crop_and_scale(self, size):
-        raise NotImplementedError
+        return image.resize((size.width, size.height), Image.ANTIALIAS)
+
+    def watermark(self, size, image=None):
+        if not image:
+            image = self.im
+
+        orig_watermark = Image.open(size.config['watermark_image']).convert('RGBA')
+        if size.config['watermark_scale'] == "yes":
+            orig_watermark = orig_watermark.resize(image.size, Image.ANTIALIAS)
+
+        watermark = orig_watermark.copy()
+
+        if size.config['watermark_opacity']:
+            alpha = watermark.split()[3]
+            alpha = ImageEnhance.Brightness(alpha).enhance(float(size.config['watermark_opacity']))
+            watermark.putalpha(alpha)
+        return Image.composite(orig_watermark, image, watermark)
 
     def save(self, size, im, id):
         params = {}
