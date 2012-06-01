@@ -9,6 +9,7 @@ from imageprocs import ImageProc
 import datetime
 
 from notifier import notify
+import os
 
 config = ConfigParser.RawConfigParser()
 config.readfp(file('config.ini', 'r'))
@@ -22,6 +23,10 @@ class ImageSize(object):
 
 broker_conf = dict(config.items('broker'))
 sizes = [ ImageSize(section[5:]) for section in config.sections() if section.startswith('size:') ]
+
+for x in range(int(config.get('workers','forks'))-1):
+    if os.fork() != 0:
+        break
 
 connection = pika.BlockingConnection(
                 pika.ConnectionParameters(

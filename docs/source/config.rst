@@ -40,7 +40,7 @@ workers
 
 The workers options:
 
-    - forks: Number of workers forks
+    - forks: Number of workers forks (0 means no fork, only main process)
 
 Sizes definitions
 -----------------
