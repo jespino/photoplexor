@@ -6,6 +6,9 @@ import os
 import ConfigParser
 import StringIO
 from imageprocs import ImageProc
+import datetime
+
+from notifier import notify
 
 config = ConfigParser.RawConfigParser()
 config.readfp(file('config.ini', 'r'))
@@ -32,7 +35,13 @@ channel.queue_declare(queue=broker_conf['queue'])
 def callback(ch, method, properties, body):
     id = body[0:40]
     print " [x] Received %r" % (id,)
-    im_proc = ImageProc(id, body[40:], config)
+    notify_url = config.get('global', 'on_finish_image_post')
+    try:
+        im_proc = ImageProc(id, body[40:], config)
+    except IOError:
+        print "TODO: IOError: Meter esto en un log"
+        notify(notify_url, id, False)
+        return False
 
     for size in sizes:
         print " [x] Generating size %s" % (size.name)
@@ -42,7 +51,16 @@ def callback(ch, method, properties, body):
             # Try to run the policy as ImageProc method
             im = getattr(im_proc, policy)(size, image=im)
 
+        image_notify_url = size.config.get('on_finish_post', None)
+        if image_notify_url:
+            notify(image_notify_url, id, True, size.name)
+
         im_proc.save(size, im, id)
+    print " [x] Finished %s at %s" % (id, datetime.datetime.now())
+
+    if notify_url:
+        notify(notify_url, id, True)
+
 
 channel.basic_consume(callback, queue=broker_conf['queue'], no_ack=True)
 
