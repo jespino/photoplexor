@@ -1,0 +1,4 @@
+CherryPy>=3.2.2
+PIL>=1.1.7
+pika>=0.9.5
+wsgiref>=0.1.2
