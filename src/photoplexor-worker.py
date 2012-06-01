@@ -14,8 +14,8 @@ class ImageSize(object):
     def __init__(self, size):
         self.name = size
         self.config = dict(config.items("size:%s" % size))
-        self.width = self.config.pop('width')
-        self.height = self.config.pop('height')
+        self.width = int(self.config.pop('width'))
+        self.height = int(self.config.pop('height'))
 
 broker_conf = dict(config.items('broker'))
 sizes = [ ImageSize(section[5:]) for section in config.sections() if section.startswith('size:') ]

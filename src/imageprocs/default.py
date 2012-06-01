@@ -1,5 +1,5 @@
 import os
-from PIL import Image
+from PIL import Image, ImageOps
 
 class DefaultImageProc(object):
     def __init__(self, id, image_data, config):
@@ -45,9 +45,29 @@ class DefaultImageProc(object):
         else:
             top = 0
             botton = height
-        result_image = Image.new("RGBA", (int(size.width), int(size.height))
-        result_image.paste(self.im, (left, top, right, botton))
-        return result_image
+        return self.im.crop((left, top, right, botton))
+
+    def fit(self, size):
+        align = [0.0, 0.0]
+
+        if size.config['fit_align'] == 'center':
+            align[1] = 0.5
+        elif size.config['fit_align'] == 'left':
+            align[1] = 0.0
+        elif size.config['fit_align'] == 'right':
+            align[1] = 1.0
+        else:
+            raise Exception('Invalid fit_align')
+
+        if size.config['fit_valign'] == 'middle':
+            align[0] = 0.5
+        elif size.config['fit_valign'] == 'top':
+            align[0] = 0.0
+        elif size.config['fit_valign'] == 'botton':
+            align[0] = 1.0
+        else:
+            raise Exception('Invalid fit_valign')
+        return ImageOps.fit(self.im, (size.width, size.height), Image.ANTIALIAS, 0, align)
 
     def scale(self, size):
         return self.im.resize(size, Image.ANTIALIAS)
