@@ -51,9 +51,9 @@ you have to create a section on the config.ini like [size:the-name-of-my-size].
 
 On this section you can configure this parameters:
 
-    - width: Final width of the image (used on scale, crop and fit policies)
-    - height: Final height of the image (used on scale, crop and fit policies)
-    - policy: A comma delimited list of policies (crop, scale, fit or watermark)
+    - width: Final width of the image (used on scale, crop and fit actions)
+    - height: Final height of the image (used on scale, crop and fit actions)
+    - actions: A comma delimited list of actions (crop, scale, fit, watermark, update_master, grayscale, flip, mirror, equalize, invert)
     - fit_align: Horizontal align (center, left, right) (used on fit)
     - fit_valign: Vertical align (middle, top, botton) (used on fit)
     - crop_align: Horizontal align (center, left, right) (used on crop)
@@ -94,7 +94,7 @@ Config Example
   [size:example1]
   width=1024
   height=768
-  policy=fit,watermark
+  actions=fit,watermark
   fit_align=center
   fit_valign=middle
   format=png
@@ -107,7 +107,7 @@ Config Example
   [size:example2]
   width=800
   height=600
-  policy=crop
+  actions=crop
   crop_align=center
   crop_valign=middle
   format=png

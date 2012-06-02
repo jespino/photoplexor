@@ -52,9 +52,9 @@ def callback(ch, method, properties, body):
         print " [x] Generating size %s" % (size.name)
 
         im = None
-        for policy in size.config['policy'].split(','):
-            # Try to run the policy as ImageProc method
-            im = getattr(im_proc, policy)(size, image=im)
+        for action in size.config['actions'].split(','):
+            # Try to run the action as ImageProc method
+            im = getattr(im_proc, action)(size, image=im)
 
         image_notify_url = size.config.get('on_finish_post', None)
         if image_notify_url:

@@ -13,6 +13,7 @@ Contents:
 
    architecture
    config
+   actions
 
 
 

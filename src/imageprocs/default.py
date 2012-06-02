@@ -75,6 +75,36 @@ class DefaultImageProc(object):
             raise Exception('Invalid fit_valign')
         return ImageOps.fit(image, (size.width, size.height), Image.ANTIALIAS, 0, align)
 
+    def grayscale(self, size, image=None):
+        if not image:
+            image = self.im
+
+        return ImageOps.grayscale(image)
+
+    def invert(self, size, image=None):
+        if not image:
+            image = self.im
+
+        return ImageOps.invert(image)
+
+    def flip(self, size, image=None):
+        if not image:
+            image = self.im
+
+        return ImageOps.flip(image)
+
+    def mirror(self, size, image=None):
+        if not image:
+            image = self.im
+
+        return ImageOps.mirror(image)
+
+    def equalize(self, size, image=None):
+        if not image:
+            image = self.im
+
+        return ImageOps.equalize(image)
+
     def scale(self, size, image=None):
         if not image:
             image = self.im
@@ -96,6 +126,9 @@ class DefaultImageProc(object):
             alpha = ImageEnhance.Brightness(alpha).enhance(float(size.config['watermark_opacity']))
             watermark.putalpha(alpha)
         return Image.composite(orig_watermark, image, watermark)
+
+    def update_master(self, size, image=None):
+        self.im = image
 
     def save(self, size, im, id):
         params = {}
